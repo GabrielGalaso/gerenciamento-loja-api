@@ -1,6 +1,7 @@
 package com.gabriel.gerenciamentoloja.repository.jdbc;
 
 import com.gabriel.gerenciamentoloja.config.ConexaoFactory;
+import com.gabriel.gerenciamentoloja.exception.ClienteJaCadastradoException;
 import com.gabriel.gerenciamentoloja.exception.ClienteNaoEncontradoException;
 import com.gabriel.gerenciamentoloja.model.Cliente;
 
@@ -85,7 +86,7 @@ public class ClienteRepositoryJdbcTest {
         clienteRepositoryJdbc.cadastrar(cliente);
         cadastradoNesteTeste = true;
 
-        IllegalStateException excecao = assertThrows(IllegalStateException.class, () -> clienteRepositoryJdbc.cadastrar(cliente1));
+        ClienteJaCadastradoException excecao = assertThrows(ClienteJaCadastradoException.class, () -> clienteRepositoryJdbc.cadastrar(cliente1));
 
         SQLException causa = assertInstanceOf(SQLException.class, excecao.getCause());
 
@@ -98,7 +99,7 @@ public class ClienteRepositoryJdbcTest {
         clienteRepositoryJdbc.cadastrar(cliente);
         cadastradoNesteTeste = true;
 
-        IllegalStateException excecao = assertThrows(IllegalStateException.class, () -> clienteRepositoryJdbc.cadastrar(cliente1));
+        ClienteJaCadastradoException excecao = assertThrows(ClienteJaCadastradoException.class, () -> clienteRepositoryJdbc.cadastrar(cliente1));
 
         SQLException causa = assertInstanceOf(SQLException.class, excecao.getCause());
 

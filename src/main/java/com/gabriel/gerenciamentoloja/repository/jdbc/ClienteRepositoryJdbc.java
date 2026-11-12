@@ -97,7 +97,7 @@ public class ClienteRepositoryJdbc implements Repository<Cliente, Integer> {
 
         }catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
-                throw new ClienteJaCadastradoException("Cliente com ID " + cliente.getId() + " já cadastrado!");
+                throw new ClienteJaCadastradoException("Cliente com ID " + cliente.getId() + " já cadastrado!", e);
             }
             throw new IllegalStateException("Erro ao cadastrar cliente no banco", e);
         }

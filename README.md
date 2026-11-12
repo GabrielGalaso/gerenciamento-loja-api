@@ -1,26 +1,39 @@
-# 🛒 Sistema de Gerenciamento de Loja
+# 🛒 Gerenciamento de Loja API
 
-Sistema de gerenciamento de loja desenvolvido em **Java 21**, com interface via terminal, persistência de dados em **MySQL** e acesso ao banco utilizando **JDBC**.
+Projeto de gerenciamento de loja em evolução de **Java SE/JDBC** para uma **API REST com Spring Boot**, utilizando **Java 21**.
 
-## 📖 Sobre o projeto
+A base original reúne regras de negócio, persistência em MySQL, interface pelo terminal e testes automatizados. A migração reaproveita esses conhecimentos e acrescenta, por etapas, recursos do ecossistema Spring e contratos HTTP.
 
-O projeto foi desenvolvido para colocar em prática conceitos de **Programação Orientada a Objetos**, banco de dados relacional, arquitetura em camadas e tratamento de exceções.
+## 📌 Estado atual — API-002
 
-A aplicação permite gerenciar produtos e clientes, realizar pedidos com múltiplos itens, controlar o estoque, consultar o faturamento e exportar produtos para arquivos CSV.
+A base Spring Boot está configurada e executa um servidor HTTP na porta **8080**.
 
-As vendas utilizam **transações JDBC com `commit` e `rollback`**, evitando que operações incompletas comprometam a consistência dos dados.
+- Spring Boot **4.1.2** com Java **21** e Spring MVC.
+- Inicialização pela classe `GerenciamentoLojaApplication`.
+- Maven Wrapper incluído no projeto.
+- Geração e execução de JAR pelo terminal.
+- **118 testes aprovados no IntelliJ**, build Maven concluído com `BUILD SUCCESS` e JAR executado com sucesso.
+
+**Os endpoints de negócio ainda serão implementados.** As operações da loja descritas abaixo pertencem à implementação Java SE/JDBC, acessível pelo console. A configuração do datasource pelo Spring e a migração da persistência serão realizadas nas próximas etapas.
 
 ## 🛠️ Tecnologias utilizadas
 
-- **Java 21** — Lógica de negócio, orientação a objetos e interface pelo terminal.
-- **JDBC** — Comunicação com o MySQL e gerenciamento de transações.
-- **MySQL** — Armazenamento dos dados da loja.
-- **Docker** — Execução do banco de dados em contêiner.
-- **Maven** — Gerenciamento de dependências e construção do projeto.
-- **Java NIO.2** — Manipulação de arquivos e exportação CSV.
-- **JUnit** — Testes de unidade e integração.
+| Tecnologia | Uso atual |
+|---|---|
+| Java 21 | Regras de negócio e implementação da aplicação |
+| Spring Boot 4.1.2 | Inicialização e configuração da base web |
+| Spring MVC | Base para os futuros endpoints HTTP |
+| Tomcat embutido | Servidor HTTP da aplicação |
+| Maven e Maven Wrapper | Dependências, compilação, testes e empacotamento |
+| JDBC | Persistência e transações da implementação existente |
+| MySQL | Armazenamento dos dados da loja |
+| Docker | Execução local do MySQL em contêiner |
+| Lombok | Geração de métodos auxiliares nos modelos |
+| JUnit Jupiter / Spring Boot Starter Test | Testes de unidade e integração |
+| Java NIO.2 | Manipulação de arquivos e exportação CSV |
+| Git e GitHub | Versionamento e acompanhamento da evolução do projeto |
 
-## ⚙️ Funcionalidades
+## ⚙️ Funcionalidades da implementação Java SE/JDBC
 
 - Cadastro, listagem, busca e remoção de produtos e clientes.
 - Criação e finalização de pedidos com múltiplos produtos.
@@ -33,96 +46,189 @@ As vendas utilizam **transações JDBC com `commit` e `rollback`**, evitando que
 - Consulta do faturamento total.
 - Exportação de produtos para CSV.
 
+Essas funcionalidades serão disponibilizadas por HTTP durante a migração.
+
 ## 🧠 Arquitetura e conceitos aplicados
 
-O sistema utiliza **orientação a objetos**, encapsulamento, interfaces, generics e polimorfismo.
+O projeto utiliza orientação a objetos, encapsulamento, interfaces, generics e polimorfismo. A interface `Repository<T, ID>` define operações comuns de persistência, utilizadas por implementações em memória ou JDBC.
 
-A interface genérica `Repository<T, ID>` define operações comuns de persistência, permitindo trabalhar com implementações em memória ou JDBC.
+O código é organizado em modelos, serviços, repositórios, configuração, exceções e interface de usuário. Na implementação JDBC, a finalização de pedidos utiliza uma transação para registrar o pedido, seus itens e a atualização do estoque em conjunto. A redução de estoque utiliza SQL condicional para verificar a quantidade disponível.
 
-O código é organizado em camadas, separando a interface do usuário, os modelos, os serviços e os repositórios.
+Também são utilizados `BigDecimal` para valores monetários, `PreparedStatement` para consultas parametrizadas e `try-with-resources` para gerenciar recursos.
 
-Na finalização dos pedidos, uma transação garante que o pedido, seus itens e a atualização do estoque sejam processados em conjunto. A redução do estoque utiliza SQL condicional para impedir vendas acima da quantidade disponível.
-
-Também são utilizados `BigDecimal` para cálculos monetários, `PreparedStatement` para consultas parametrizadas e `try-with-resources` para o gerenciamento de recursos.
+A classe `GerenciamentoLojaApplication` inicia a aplicação Spring Boot. A classe `Main` permanece como entrada do console durante a migração.
 
 ## 📂 Estrutura do projeto
 
-```text
-gerenciamento-loja/
-├── database/
-│   └── schema.sql
-├── src/
-│   ├── main/java/com/gabriel/gerenciamentoloja/
-│   │   ├── config/
-│   │   ├── exception/
-│   │   ├── model/
-│   │   ├── repository/
-│   │   │   └── jdbc/
-│   │   ├── service/
-│   │   ├── ui/
-│   │   └── Main.java
-│   └── test/
-├── pom.xml
-└── README.md
-```
+Os pacotes Java estão em `src/main/java/com/gabriel/gerenciamentoloja/`.
 
-**Responsabilidades:**
+| Caminho ou classe | Responsabilidade |
+|---|---|
+| `database/schema.sql` | Definições SQL do banco existente |
+| `config/` | Configuração da conexão JDBC |
+| `exception/` | Exceções personalizadas |
+| `model/` | Modelos e regras do domínio |
+| `repository/` | Interface genérica e repositórios |
+| `repository/jdbc/` | Implementações de persistência JDBC |
+| `service/` | Serviços e operações de negócio |
+| `ui/` | Interface interativa pelo terminal |
+| `GerenciamentoLojaApplication.java` | Inicialização do Spring Boot |
+| `Main.java` | Inicialização do console e configuração manual das dependências |
+| `src/test/java/` | Testes de unidade e integração |
+| `.mvn/wrapper/maven-wrapper.properties` | Configuração da distribuição Maven usada pelo Wrapper |
+| `mvnw` e `mvnw.cmd` | Scripts do Maven Wrapper |
+| `pom.xml` | Dependências e plugins do projeto |
 
-- `config` — Configuração da conexão com o MySQL.
-- `exception` — Exceções personalizadas.
-- `model` — Entidades e regras do domínio.
-- `repository` — Interface genérica e repositórios.
-- `repository.jdbc` — Persistência utilizando JDBC.
-- `service` — Serviços de pedidos e exportação.
-- `ui` — Interface interativa pelo terminal.
-- `Main` — Inicialização e configuração das dependências.
-
-## 🗄️ Banco de dados
-
-O banco de dados MySQL possui quatro tabelas principais:
-
-- `produtos`
-- `clientes`
-- `pedidos`
-- `itens_pedido`
-
-As tabelas possuem relacionamentos por chaves estrangeiras para preservar a integridade dos registros.
-
-O script de criação das tabelas está disponível em `database/schema.sql`.
-
-## 🚀 Como executar
+## 🚀 Preparar o ambiente
 
 ### Pré-requisitos
 
-- Java 21
-- Maven
-- Docker com MySQL 8.4, ou uma instância compatível de MySQL
-- IntelliJ IDEA ou outra IDE Java
+- **JDK 21** disponível no terminal.
+- **Git** para clonar o repositório.
+- **MySQL 8.4**, ou uma instalação compatível, para os testes JDBC e o console.
+- **Docker**, caso o MySQL seja executado em contêiner.
+- Uma IDE Java, como IntelliJ IDEA, é opcional para o build e a execução do JAR.
+
+O Maven Wrapper baixa a distribuição Maven configurada pelo projeto. Não é necessário instalar o Maven separadamente; o primeiro uso requer acesso à internet.
+
+Os comandos abaixo utilizam **Windows PowerShell**, inclusive o terminal integrado do IntelliJ. Execute-os na pasta que contém o `pom.xml`.
 
 ### 1. Clonar o repositório
 
-```bash
-git clone [URL_DO_REPOSITORIO](https://github.com/GabrielGalaso/gerenciamento-loja)
-cd gerenciamento-loja
+```powershell
+git clone https://github.com/GabrielGalaso/gerenciamento-loja-api.git
+cd gerenciamento-loja-api
 ```
 
-Substitua `URL_DO_REPOSITORIO` pelo endereço deste projeto no GitHub.
+### 2. Conferir o Java e o Maven Wrapper
 
-### 2. Configurar o MySQL
-
-Caso ainda não tenha um contêiner MySQL configurado, pode criar um com:
-
-```bash
-docker run --name mysql-loja -e MYSQL_ROOT_PASSWORD=SENHA_ROOT -e MYSQL_DATABASE=gerenciamento_loja -e MYSQL_USER=loja_app -e MYSQL_PASSWORD=SENHA_APP -p 3307:3306 -d mysql:8.4
+```powershell
+java -version
+.\mvnw.cmd -v
 ```
 
-Substitua `SENHA_ROOT` e `SENHA_APP` por senhas próprias.
+Confira se o Java utilizado pelo terminal e pelo Maven é o **Java 21**.
 
-Em seguida, conecte-se ao banco por um cliente SQL e execute o script `database/schema.sql` no banco `gerenciamento_loja`.
+### 3. Preparar o MySQL
 
-### 3. Configurar as variáveis de ambiente
+Nesta etapa, os testes JDBC e o console utilizam dois bancos separados:
 
-No IntelliJ IDEA, acesse **Run → Edit Configurations → Environment Variables** e configure:
+| Banco | Finalidade |
+|---|---|
+| `gerenciamento_loja` | Uso da aplicação pelo console |
+| `gerenciamento_loja_teste` | Execução dos testes de integração |
+
+Se já houver uma instalação configurada, reutilize seu host, porta e usuário. Para um ambiente novo com Docker, este é um exemplo:
+
+```powershell
+docker run --name mysql-loja -e MYSQL_ROOT_PASSWORD=SENHA_ROOT -e MYSQL_DATABASE=gerenciamento_loja -e MYSQL_USER=loja_app -e MYSQL_PASSWORD=SENHA_APP -p 3307:3306 -v mysql-loja-dados:/var/lib/mysql -d mysql:8.4
+```
+
+Substitua `SENHA_ROOT` e `SENHA_APP` pelos valores do seu ambiente. O exemplo publica o MySQL na porta **3307** do computador e utiliza um volume para os dados.
+
+Depois que o MySQL estiver pronto, entre no cliente SQL do contêiner:
+
+```powershell
+docker exec -it mysql-loja mysql -u root -p
+```
+
+Informe a senha de administrador escolhida na criação do contêiner. Para esse exemplo, crie o banco de testes e conceda acesso ao usuário `loja_app`:
+
+```sql
+CREATE DATABASE IF NOT EXISTS gerenciamento_loja_teste;
+GRANT ALL PRIVILEGES ON gerenciamento_loja_teste.* TO 'loja_app'@'%';
+```
+
+O usuário criado pelo contêiner já recebe acesso ao banco informado em `MYSQL_DATABASE`; o acesso ao banco de testes é concedido separadamente. Em outra instalação, ajuste o usuário e o host da conta conforme sua configuração.
+
+#### Preparar as tabelas
+
+As definições das tabelas estão em `database/schema.sql`. Os dois bancos devem conter as tabelas `clientes`, `produtos`, `pedidos` e `itens_pedido`.
+
+Nesta etapa, a preparação do esquema é manual. Em um cliente SQL, selecione o banco de destino e aplique as definições de criação das tabelas do arquivo, respeitando a ordem das dependências: clientes e produtos, depois pedidos e itens de pedido.
+
+Para essa preparação, execute somente as definições de tabelas. A revisão da carga de exemplos e a inicialização reproduzível do banco fazem parte da **API-003**.
+
+Utilize um banco exclusivo de testes, sem pedidos cadastrados manualmente: alguns cenários verificam que a listagem de pedidos está vazia. O isolamento e a limpeza do ambiente de testes também serão aprimorados na API-003.
+
+### 4. Configurar o acesso ao banco de testes
+
+Antes de executar a suíte ou gerar o JAR, configure as variáveis na mesma sessão do PowerShell:
+
+```powershell
+$env:LOJA_DB_URL = 'jdbc:mysql://127.0.0.1:3307/gerenciamento_loja_teste'
+$env:LOJA_DB_USER = 'loja_app'
+$env:LOJA_DB_PASSWORD = 'SENHA_APP'
+```
+
+Ajuste a porta, o usuário e a senha para o seu ambiente. Os valores acima correspondem ao exemplo com Docker.
+
+Essas variáveis são utilizadas pela conexão JDBC existente. Variáveis definidas apenas na configuração JUnit do IntelliJ não são automaticamente aplicadas ao terminal. Mantenha credenciais reais fora do código e dos arquivos versionados.
+
+### 5. Compilar, testar e gerar o JAR
+
+Com o MySQL em execução e o banco de testes preparado:
+
+```powershell
+.\mvnw.cmd clean package
+```
+
+O comando limpa os resultados anteriores, compila o projeto, executa os testes e gera o JAR executável. Ao terminar com `BUILD SUCCESS`, o arquivo esperado é:
+
+```text
+target/gerenciamento-loja-api-1.0-SNAPSHOT.jar
+```
+
+O build precisa do banco porque executa os testes JDBC. Na API-002, a inicialização da base web ainda não estabelece uma conexão de datasource gerenciada pelo Spring.
+
+## ▶️ Executar a aplicação Spring Boot
+
+Após gerar o JAR:
+
+```powershell
+java -jar .\target\gerenciamento-loja-api-1.0-SNAPSHOT.jar
+```
+
+O console deve apresentar mensagens semelhantes a:
+
+```text
+Tomcat started on port 8080
+Started GerenciamentoLojaApplication
+```
+
+O servidor fica disponível em [http://localhost:8080](http://localhost:8080) e permanece em execução até ser encerrado com **Ctrl+C**.
+
+Como os endpoints de negócio ainda não foram criados, uma resposta **404** na raiz é esperada nesta etapa.
+
+No IntelliJ, também é possível executar a classe `com.gabriel.gerenciamentoloja.GerenciamentoLojaApplication`. Para iniciar uma segunda execução na porta 8080, encerre a instância anterior.
+
+## 🧪 Testes
+
+A suíte utiliza **JUnit Jupiter**, fornecido pelo `spring-boot-starter-test`, para validar regras de negócio e operações de integração JDBC.
+
+Para executar somente os testes, mantenha o banco de testes e as variáveis de ambiente preparados e rode:
+
+```powershell
+.\mvnw.cmd test
+```
+
+No IntelliJ, configure `LOJA_DB_URL`, `LOJA_DB_USER` e `LOJA_DB_PASSWORD` na configuração de execução dos testes, apontando para `gerenciamento_loja_teste`.
+
+### Validação da API-002
+
+- **118 testes aprovados no IntelliJ.**
+- Build pelo Maven Wrapper concluído com **`BUILD SUCCESS`**.
+- JAR gerado e executado pelo terminal com Tomcat na porta **8080**.
+
+## 💻 Executar o console Java SE/JDBC
+
+O menu interativo continua disponível durante a migração. Para utilizá-lo no IntelliJ, execute:
+
+```text
+com.gabriel.gerenciamentoloja.Main
+```
+
+Na configuração de execução dessa classe, utilize as variáveis correspondentes ao banco de uso do console:
 
 ```env
 LOJA_DB_URL=jdbc:mysql://127.0.0.1:3307/gerenciamento_loja
@@ -130,65 +236,20 @@ LOJA_DB_USER=loja_app
 LOJA_DB_PASSWORD=SENHA_APP
 ```
 
-Utilize os dados correspondentes à sua instalação do MySQL.
+Ajuste os valores conforme sua instalação. A classe `Main` abre o menu de produtos, clientes, pedidos, relatórios e exportação; `GerenciamentoLojaApplication` inicia o servidor HTTP.
 
-**Não inclua senhas reais no código ou no repositório.**
+A exportação pelo console gera `exportacoes/produtos.csv`, com campos separados por ponto e vírgula, em relação ao diretório de execução.
 
-### 4. Executar a aplicação
-
-Abra o projeto no IntelliJ IDEA, aguarde o carregamento das dependências Maven e execute a classe:
-
-`com.gabriel.gerenciamentoloja.Main`
-
-A aplicação iniciará o menu interativo no terminal da IDE.
-
-## 💻 Exemplo de utilização
-
-Menu principal:
-
-```text
-===== SISTEMA DE GERENCIAMENTO DE LOJA =====
-
-[1] Gerenciar produtos
-[2] Gerenciar clientes
-[3] Gerenciar pedidos
-[4] Relatorios e exportacao
-
-[0] Sair do sistema
-```
-
-Exemplo de finalização de um pedido:
-
-```text
-Insira o ID do pedido: 100
-Insira o ID do cliente: 10
-
-Insira o ID do produto: 10
-Insira a quantidade: 2
-Item adicionado ao pedido!
-
-Deseja adicionar outro item? (S/N): S
-
-Insira o ID do produto: 11
-Insira a quantidade: 1
-Item adicionado ao pedido!
-
-Deseja adicionar outro item? (S/N): N
-
-Pedido finalizado com sucesso!
-Total: R$ 418.80
-```
-
-Os valores apresentados são ilustrativos.
-
-A exportação gera o arquivo `exportacoes/produtos.csv`, com os dados dos produtos cadastrados e campos separados por ponto e vírgula.
-
-## 🧪 Testes
-
-O projeto utiliza **JUnit** para validar regras de negócio e operações de integração com o banco de dados.
-
-Os testes de integração utilizam um banco separado, `gerenciamento_loja_teste`, para evitar interferência nos dados de uso da aplicação.
 
 ## 🎯 Objetivo do projeto
 
-Consolidar conhecimentos de **Java SE, orientação a objetos, JDBC, SQL e organização de software**, desenvolvendo uma aplicação prática para compor meu portfólio como desenvolvedor Java back-end.
+Consolidar conhecimentos de **Java, orientação a objetos, JDBC, SQL, Spring Boot, APIs REST, testes automatizados e Git/GitHub**, construindo um projeto de portfólio e acompanhando sua evolução por entregas.
+
+Este repositório evolui a partir do [projeto original em Java SE/JDBC](https://github.com/GabrielGalaso/gerenciamento-loja), preservando seu histórico como base para a migração.
+
+## 📚 Documentação de referência
+
+- [Maven Wrapper](https://maven.apache.org/tools/wrapper/)
+- [Empacotamento executável com Spring Boot](https://docs.spring.io/spring-boot/maven-plugin/packaging.html)
+- [MySQL com Docker](https://dev.mysql.com/doc/refman/8.4/en/docker-mysql-more-topics.html)
+- [Permissões de acesso no MySQL](https://dev.mysql.com/doc/refman/8.4/en/grant.html)

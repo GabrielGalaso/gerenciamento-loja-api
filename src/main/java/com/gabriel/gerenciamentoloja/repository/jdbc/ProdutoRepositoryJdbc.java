@@ -99,7 +99,7 @@ public class ProdutoRepositoryJdbc implements Repository<Produto, Integer> {
 
         }catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
-                throw new ProdutoJaCadastradoException("Produto com ID " + produto.getId() + " já cadastrado!");
+                throw new ProdutoJaCadastradoException("Produto com ID " + produto.getId() + " já cadastrado!", e);
             }
             throw new IllegalStateException("Erro ao cadastrar produto no banco", e);
         }

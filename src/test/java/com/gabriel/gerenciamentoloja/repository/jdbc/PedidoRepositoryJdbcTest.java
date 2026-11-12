@@ -1,6 +1,7 @@
 package com.gabriel.gerenciamentoloja.repository.jdbc;
 
 import com.gabriel.gerenciamentoloja.config.ConexaoFactory;
+import com.gabriel.gerenciamentoloja.exception.EstoqueInsuficienteException;
 import com.gabriel.gerenciamentoloja.exception.PedidoJaFinalizadoException;
 import com.gabriel.gerenciamentoloja.exception.PedidoNaoEncontradoException;
 import com.gabriel.gerenciamentoloja.model.Cliente;
@@ -198,8 +199,8 @@ public class PedidoRepositoryJdbcTest {
         pedido.adicionarItem(teclado);
 
         pedidoTentado = true;
-        IllegalStateException excecao = assertThrows(IllegalStateException.class, () -> pedidoRepositoryJdbc.cadastrar(pedido));
-        assertTrue(excecao.getMessage().contains("estoque insuficiente"));
+        EstoqueInsuficienteException excecao = assertThrows(EstoqueInsuficienteException.class, () -> pedidoRepositoryJdbc.cadastrar(pedido));
+        assertTrue(excecao.getMessage().contains("Estoque insuficiente"));
 
         String sqlEstoque = "SELECT quantidade FROM produtos WHERE id = ?";
 

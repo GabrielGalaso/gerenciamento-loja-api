@@ -2,6 +2,7 @@
 package com.gabriel.gerenciamentoloja.repository.jdbc;
 
 import com.gabriel.gerenciamentoloja.config.ConexaoFactory;
+import com.gabriel.gerenciamentoloja.exception.ProdutoJaCadastradoException;
 import com.gabriel.gerenciamentoloja.exception.ProdutoNaoEncontradoException;
 import com.gabriel.gerenciamentoloja.model.Produto;
 import org.junit.jupiter.api.AfterEach;
@@ -76,7 +77,7 @@ public class ProdutoRepositoryJdbcTest {
         produtoRepositoryJdbc.cadastrar(produto);
         cadastradoNesteTeste = true;
 
-        IllegalStateException excecao = assertThrows(IllegalStateException.class, () -> produtoRepositoryJdbc.cadastrar(produto));
+        ProdutoJaCadastradoException excecao = assertThrows(ProdutoJaCadastradoException.class, () -> produtoRepositoryJdbc.cadastrar(produto));
 
         SQLException causa = assertInstanceOf(SQLException.class, excecao.getCause());
 
